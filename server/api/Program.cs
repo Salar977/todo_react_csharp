@@ -1,3 +1,5 @@
+using System.Text.Json;
+using api;
 using efscaffold.Entities;
 using Infrastructure.Postgres.Scaffolding;
 using Microsoft.AspNetCore.Mvc;
@@ -5,12 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-var connectionString = builder.Configuration.GetConnectionString("Default");
+var appOptions = builder.Services.AddAppOptions(builder.Configuration);
 
 builder.Services.AddDbContext<MyDbContext>(conf =>
 {
-    conf.UseNpgsql(connectionString);
+    conf.UseNpgsql(appOptions.DbConnectionString);
 });
 
 var app = builder.Build();
@@ -30,7 +31,7 @@ app.MapGet("todo/add", async ([FromServices] MyDbContext dbContext) =>
     return Results.Ok(myTodo);
 });
 
-app.MapGet("", async ([FromServices] MyDbContext dbContext) =>
+app.MapGet("/", async ([FromServices] MyDbContext dbContext) =>
 {
     var objects = await dbContext.Todos.ToListAsync();
     return Results.Ok(objects);
