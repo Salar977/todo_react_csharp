@@ -15,7 +15,7 @@ builder.Services.AddDbContext<MyDbContext>(conf =>
 
 var app = builder.Build();
 
-app.MapGet("/", async ([FromServices] MyDbContext dbContext) =>
+app.MapGet("todo/add", async ([FromServices] MyDbContext dbContext) =>
 {
     var myTodo = new Todo()
     {
@@ -27,8 +27,12 @@ app.MapGet("/", async ([FromServices] MyDbContext dbContext) =>
     };
     await dbContext.AddAsync(myTodo);
     await dbContext.SaveChangesAsync();
-    
-    var objects = dbContext.Todos.ToList();
+    return Results.Ok(myTodo);
+});
+
+app.MapGet("", async ([FromServices] MyDbContext dbContext) =>
+{
+    var objects = await dbContext.Todos.ToListAsync();
     return Results.Ok(objects);
 });
 
